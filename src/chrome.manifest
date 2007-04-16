@@ -1,0 +1,5 @@
+content			bzcompanion																				${extension.chromebase}/content/
+skin				bzcompanion					classic/1.0										${extension.chromebase}/skin/
+locale			bzcompanion					en-US													${extension.chromebase}/locale/en-US/
+
+overlay			chrome://browser/content/browser.xul							chrome://bzcompanion/content/browserOverlay.xul
