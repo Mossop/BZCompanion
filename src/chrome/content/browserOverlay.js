@@ -61,7 +61,7 @@ destroy: function()
   gBrowser.removeEventListener("pageshow", this, true);
 },
 
-bugzillaLoad: function(document)
+bugzillaLoad: function(settings, uri, document)
 {
 },
 
@@ -71,30 +71,32 @@ pageLoad: function(event)
       (!event.originalTarget.defaultView.frameElement))
   {
     var doc = event.originalTarget;
-    if (BZCompanion.isKnownBugzilla(doc.location))
-      this.bugzillaLoad(doc);
-    else if (BZCompanion.isPossibleBugzilla(doc.location))
+    var browser = gBrowser.getBrowserForDocument(doc)
+    if (browser)
     {
-      var browser = gBrowser.getBrowserForDocument(doc)
-      if (browser)
+      var uri = browser.currentURI;
+      var settings = BZCompanion.settings.getSettingsForURI(uri);
+      if (settings)
+        this.bugzillaLoad(settings, uri, doc);
+      else if (BZCompanion.isPossibleBugzilla(uri))
       {
         var notifier = gBrowser.getNotificationBox(browser);
-        var config = BZCompanion.getConfigForLocation(doc.location);
+        var defaults = BZCompanion.settings.getDefaultsForURI(uri);
         var message;
-        if (config)
-          message = this.stringbundle.getFormattedString("detect.custombugzilla", [config.name]);
+        if (defaults && defaults.name)
+          message = this.stringbundle.getFormattedString("detect.custombugzilla", [defaults.name]);
         else
           message = this.stringbundle.getString("detect.stockbugzilla");
         var buttons = [
           {
             accessKey: this.stringbundle.getString("detect.yes.accesskey"),
             label: this.stringbundle.getString("detect.yes.label"),
-            callback: function(notification) { BZCompanion.addLocation(doc.location); notification.close(); }
+            callback: function(notification) { BZCompanion.addInstallation(uri); notification.close(); }
           },
           {
             accessKey: this.stringbundle.getString("detect.no.accesskey"),
             label: this.stringbundle.getString("detect.no.label"),
-            callback: function(notification) { BZCompanion.ignoreLocation(doc.location); notification.close(); }
+            callback: function(notification) { BZCompanion.ignoreInstallation(uri); notification.close(); }
           }
         ];
         notifier.appendNotification(message, "bzcheckbugzilla", null, notifier.PRIORITY_INFO_MEDIUM, buttons);

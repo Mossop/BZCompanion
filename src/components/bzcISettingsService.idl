@@ -42,57 +42,27 @@
  *
  */
 
-var BZCompanion = {
+#include "nsISupports.idl"
+#include "nsIURI.idl"
 
-urlbaseRegExp: /^(.*\/)(?:show_bug\.cgi|query\.cgi|buglist\.cgi|enter_bug\.cgi)[\?$]/,
-settings: null,
-
-init: function()
+[scriptable, uuid(8b07bb6a-5cf4-4ef8-95d3-ac5b019ba3af)]
+interface bzcISettings : nsISupports
 {
-  this.settings = Components.classes["@blueprintit.co.uk/bzcsettings;1"]
-                            .getService(Components.interfaces.bzcISettingsService);
-},
+	readonly attribute AString id;
+	readonly attribute nsIURI urlbase;
+	attribute AString name;
+	attribute boolean ignored;
+	
+	AString getValue(in AString key);
+	void setValue(in AString key, in AString value);
+};
 
-isPossibleBugzilla: function(uri)
+[scriptable, uuid(34f1388b-daff-419f-b629-b126349a215e)]
+interface bzcISettingsService : nsISupports
 {
-  if (this.urlbaseRegExp.test(uri.path))
-    return true;
-  return false;
-},
-
-guessUrlBase: function(uri)
-{
-  var matches = this.urlbaseRegExp.exec(uri.path);
-  if (matches)
-  {
-    var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                        .getService(Components.interfaces.nsIIOService);
-    return ios.newURI(uri.prePath+matches[1], null, null);
-  }
-  return null;
-},
-
-addInstallation: function(uri)
-{
-  var base = this.guessUrlBase(location);
-  if (base)
-  {
-  }
-},
-
-ignoreInstallation: function(uri)
-{
-  var defaults = this.settings.getDefaultsForURI(uri);
-  var base;
-  if (defaults)
-    base = defaults.urlbase;
-  else
-    base = this.guessUrlBase(uri);
-  if (base)
-  {
-    var settings = this.settings.createSettingsForURI(base, defaults);
-    settings.ignored = true;
-    this.settings.flushSettings();
-  }
-}
+	bzcISettings createSettingsForURI(in nsIURI uri, in bzcISettings defaults);
+	bzcISettings getSettingsForURI(in nsIURI uri);
+	bzcISettings getDefaultsForURI(in nsIURI uri);
+	bzcISettings getDefaultsForVersion(in AString version);
+	void flushSettings();
 };
