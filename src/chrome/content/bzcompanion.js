@@ -46,7 +46,7 @@
 
 var BZCompanion = {
 
-urlbaseRegExp: /^(.*\/)(?:show_bug.cgi)$/,
+urlbaseRegExp: /^(.*\/)(?:show_bug\.cgi|query\.cgi|buglist\.cgi|enter_bug\.cgi)$/,
 
 config: {
 #include "configuration.inc"
